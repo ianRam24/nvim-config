@@ -19,6 +19,7 @@ return {
 		config = function()
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
+      require('java').setup()
 			local lspconfig = require("lspconfig")
 			lspconfig.tsserver.setup({
 				capabilites = capabilities,
