@@ -5,7 +5,7 @@ vim.cmd("set shiftwidth=2")
 vim.cmd("set shiftwidth=2")
 vim.o.number = true
 vim.o.relativenumber = true
-vim.o.clipboard = "unnamedplus"
+vim.o.clipboard = "unnamed"
 
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
