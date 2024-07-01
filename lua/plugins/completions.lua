@@ -49,30 +49,30 @@ return {
 	{
 		"hrsh7th/cmp-cmdline",
 		lazy = false,
-		config = function ()
-		      -- `/` cmdline setup.
-    cmp.setup.cmdline('/', {
-      mapping = cmp.mapping.preset.cmdline(),
-      sources = {
-        { name = 'buffer' }
-      }
-    })
+		config = function()
+			local cmp = require("cmp")
+			-- `/` cmdline setup
+			cmp.setup.cmdline('/', {
+				mapping = cmp.mapping.preset.cmdline(),
+				sources = {
+					{ name = 'buffer' }
+				}
+			})
+			-- `:` cmdline setup
+			cmp.setup.cmdline(':', {
+				mapping = cmp.mapping.preset.cmdline(),
+				sources = cmp.config.sources({
+					{ name = 'path' }
+				}, {
+					{
+						name = 'cmdline',
+						option = {
+							ignore_cmds = { 'Man', '!' }
+						}
+					}
+				})
+			})
 		end,
-    function ()
-          -- `:` cmdline setup.
-    cmp.setup.cmdline(':', {
-      mapping = cmp.mapping.preset.cmdline(),
-      sources = cmp.config.sources({
-        { name = 'path' }
-      }, {
-        {
-          name = 'cmdline',
-          option = {
-            ignore_cmds = { 'Man', '!' }
-          }
-        }
-      })
-    })
-    end
 	},
 }
+
