@@ -88,42 +88,7 @@ return {
 				command = "js-debug-adapter",
 			},
 		}
-		-- Java Debugging
-		-- Java DAP adapter
-		dap.adapters.java = function(callback)
-			-- Customize the adapter here if needed
-			callback({
-				type = "server",
-				host = "127.0.0.1",
-				port = 5005,
-				executable = {
-					command = "java",
-					args = {
-						"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=y,address=5005",
-						"-jar",
-						vim.fn.expand("~/path/to/java-debug.jar"),
-					},
-				},
-			})
-		end
-
-		dap.configurations.java = {
-			{
-				type = "java",
-				request = "attach",
-				name = "Debug (Attach) - Remote",
-				hostName = "127.0.0.1",
-				port = 5005,
-			},
-			{
-				type = "java",
-				request = "launch",
-				name = "Launch",
-				mainClass = "${file}",
-				projectName = "YourProjectName",
-			},
-		}
-		for _, language in pairs(js_languages) do
+	for _, language in pairs(js_languages) do
 			dap.configurations[language] = {
 				{
 					type = "pwa-node",

@@ -11,15 +11,35 @@ return {
 		end,
 	},
 	{
+		"github/copilot.vim",
+	},
+	{
+		"zbirenbaum/copilot-cmp",
+		config = function()
+			require("copilot_cmp").setup()
+		end,
+	},
+	{
 		"hrsh7th/cmp-nvim-lsp",
 		lazy = false,
 		config = true,
 	},
 	{
+		"zbirenbaum/copilot-cmp",
+		config = function()
+			require("copilot_cmp").setup()
+		end,
+	},
+	{
 		"hrsh7th/nvim-cmp",
 		lazy = false,
+		dependencies = {
+			"onsails/lspkind-nvim",
+		},
 		config = function()
 			local cmp = require("cmp")
+			local lspkind = require("lspkind")
+
 			cmp.setup({
 				window = {
 					documentation = cmp.config.window.bordered(),
@@ -39,10 +59,21 @@ return {
 				}),
 				sources = cmp.config.sources({
 					{ name = "nvim_lsp" },
+					{ name = "copilot", group_index = 2 },
 					{ name = "luasnip" },
 				}, {
 					{ name = "buffer" },
 				}),
+				formatting = {
+					format = lspkind.cmp_format({
+						mode = "symbol",
+						max_width = 50,
+						symbol_map = { Copilot = "" },
+					}),
+				},
+				experimental = {
+					ghost_text = true,
+				},
 			})
 		end,
 	},
@@ -52,27 +83,26 @@ return {
 		config = function()
 			local cmp = require("cmp")
 			-- `/` cmdline setup
-			cmp.setup.cmdline('/', {
+			cmp.setup.cmdline("/", {
 				mapping = cmp.mapping.preset.cmdline(),
 				sources = {
-					{ name = 'buffer' }
-				}
+					{ name = "buffer" },
+				},
 			})
 			-- `:` cmdline setup
-			cmp.setup.cmdline(':', {
+			cmp.setup.cmdline(":", {
 				mapping = cmp.mapping.preset.cmdline(),
 				sources = cmp.config.sources({
-					{ name = 'path' }
+					{ name = "path" },
 				}, {
 					{
-						name = 'cmdline',
+						name = "cmdline",
 						option = {
-							ignore_cmds = { 'Man', '!' }
-						}
-					}
-				})
+							ignore_cmds = { "Man", "!" },
+						},
+					},
+				}),
 			})
 		end,
 	},
 }
-
