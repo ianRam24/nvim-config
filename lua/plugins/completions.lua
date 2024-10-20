@@ -24,12 +24,7 @@ return {
 		lazy = false,
 		config = true,
 	},
-	{
-		"zbirenbaum/copilot-cmp",
-		config = function()
-			require("copilot_cmp").setup()
-		end,
-	},
+	-- Removed duplicate copilot-cmp entry
 	{
 		"hrsh7th/nvim-cmp",
 		lazy = false,
@@ -38,8 +33,35 @@ return {
 		},
 		config = function()
 			local cmp = require("cmp")
-			local lspkind = require("lspkind")
-
+			local luasnip = require("luasnip")
+			local kind_icons = {
+				Text = "󰉿",
+				Method = "m",
+				Function = "󰊕",
+				Constructor = "",
+				Field = "",
+				Variable = "󰆧",
+				Class = "󰌗",
+				Interface = "",
+				Module = "",
+				Property = "",
+				Unit = "",
+				Value = "󰎠",
+				Enum = "",
+				Keyword = "󰌋",
+				Snippet = "",
+				Color = "󰏘",
+				File = "󰈙",
+				Reference = "",
+				Folder = "󰉋",
+				EnumMember = "",
+				Constant = "󰇽",
+				Struct = "",
+				Event = "",
+				Operator = "󰆕",
+				TypeParameter = "󰊄",
+				Copilot = "",
+			}
 			cmp.setup({
 				window = {
 					documentation = cmp.config.window.bordered(),
@@ -47,7 +69,7 @@ return {
 				},
 				snippet = {
 					expand = function(args)
-						require("luasnip").lsp_expand(args.body)
+						luasnip.lsp_expand(args.body)
 					end,
 				},
 				mapping = cmp.mapping.preset.insert({
@@ -65,14 +87,28 @@ return {
 					{ name = "buffer" },
 				}),
 				formatting = {
-					format = lspkind.cmp_format({
-						mode = "symbol",
-						max_width = 50,
-						symbol_map = { Copilot = "" },
-					}),
+					fields = { "kind", "abbr", "menu" },
+					format = function(entry, vim_item)
+						-- Kind icons
+						vim_item.kind = string.format("%s", kind_icons[vim_item.kind])
+						-- vim_item.kind = string.format('%s %s', kind_icons[vim_item.kind], vim_item.kind) -- This concatonates the icons with the name of the item kind
+						vim_item.menu = ({
+							nvim_lsp = "[LSP]",
+							luasnip = "[Snippet]",
+							buffer = "[Buffer]",
+							path = "[Path]",
+						})[entry.source.name]
+						return vim_item
+					end,
 				},
 				experimental = {
 					ghost_text = true,
+				},
+			})
+			cmp.setup.filetype({ "sql", "mysql", "plsql" }, {
+				sources = {
+					{ name = "vim-dadbod-completion" },
+					{ name = "buffer" },
 				},
 			})
 		end,

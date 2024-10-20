@@ -5,10 +5,13 @@ return {
 		"nvim-lua/plenary.nvim",
 		"nvim-tree/nvim-web-devicons",
 		"MunifTanjim/nui.nvim",
+		"3rd/image.nvim",
 	},
 	config = function()
-		vim.keymap.set("n", "<leader>ot", ":Neotree toggle filesystem reveal right <CR>")
+		-- Keymap to toggle NeoTree
+		vim.keymap.set("n", "<leader>e", ":Neotree filesystem reveal right toggle<CR>")
 
+		-- Auto command to close NeoTree when opening a file
 		vim.api.nvim_create_autocmd("BufEnter", {
 			group = vim.api.nvim_create_augroup("CloseNeoTreeOnOpen", { clear = true }),
 			pattern = "*",
@@ -19,6 +22,7 @@ return {
 			end,
 		})
 
+		-- Function to handle file creation
 		local function on_create_file(node)
 			if node.type == "file" then
 				vim.cmd("edit " .. node.path)
@@ -26,6 +30,7 @@ return {
 			end
 		end
 
+		-- Setup NeoTree with event handlers and filtered items configuration
 		require("neo-tree").setup({
 			event_handlers = {
 				{
