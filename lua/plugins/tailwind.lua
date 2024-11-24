@@ -1,10 +1,9 @@
 return {
-	"themaxmarchuk/tailwindcss-colors.nvim",
-	-- load only on require("tailwindcss-colors")
-	module = "tailwindcss-colors",
-	-- run the setup function after plugin is loaded
+	"roobert/tailwindcss-colorizer-cmp.nvim",
+	-- optionally, override the default options:
 	config = function()
-		-- pass config options here (or nothing to use defaults)
-		require("tailwindcss-colors").setup()
+		require("tailwindcss-colorizer-cmp").setup({
+			color_square_width = 2,
+		})
 	end,
 }

@@ -2,51 +2,55 @@ return {
 	{
 		"williamboman/mason.nvim",
 		config = function()
-			-- setup mason with default properties
 			require("mason").setup()
 		end,
 	},
-	-- mason lsp config utilizes mason to automatically ensure lsp servers you want installed are installed
 	{
 		"williamboman/mason-lspconfig.nvim",
 		config = function()
-			-- ensure that we have lua language server, typescript launguage server, java language server, and java test language server are installed
 			require("mason-lspconfig").setup({
-				ensure_installed = { "lua_ls", "ts_ls", "jdtls" },
+				ensure_installed = { "lua_ls", "tsserver", "jdtls" },
 			})
 		end,
 	},
-	-- mason nvim dap utilizes mason to automatically ensure debug adapters you want installed are installed, mason-lspconfig will not automatically install debug adapters for us
 	{
 		"jay-babu/mason-nvim-dap.nvim",
 		config = function()
-			-- ensure the java debug adapter is installed
 			require("mason-nvim-dap").setup({
 				ensure_installed = { "java-debug-adapter", "java-test" },
 			})
 		end,
 	},
-	-- utility plugin for configuring the java language server for us
 	{
 		"mfussenegger/nvim-jdtls",
-		dependencies = {
-			"mfussenegger/nvim-dap",
-		},
+		dependencies = { "mfussenegger/nvim-dap" },
 	},
 	{
 		"neovim/nvim-lspconfig",
 		config = function()
-			-- get access to the lspconfig plugins functions
 			local lspconfig = require("lspconfig")
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+			-- Add colorProvider capability
+			capabilities.textDocument.colorProvider = { dynamicRegistration = true }
+
+			local on_attach = function(client, bufnr)
+				-- Disable semanticTokensProvider if it causes errors
+				if client.server_capabilities.semanticTokensProvider then
+					client.server_capabilities.semanticTokensProvider = nil
+				end
+
+				-- Call the color plugin's attach function
+				if client.server_capabilities.colorProvider then
+					require("document-color").buf_attach(bufnr)
+				end
+			end
+
+			-- Configure Omnisharp
 			lspconfig.omnisharp.setup({
 				cmd = { "dotnet", "/home/acer/.local/share/nvim/mason/packages/omnisharp/libexec/OmniSharp.dll" },
 				capabilities = capabilities,
-				log_level = vim.lsp.protocol.MessageType.Log,
-				trace = "verbose", -- Esto habilita el logging detallado
-				on_attach = function(client, bufnr)
-					client.server_capabilities.semanticTokensProvider = nil -- Para evitar problemas con nvim-cmp
-				end,
+				on_attach = on_attach,
 			})
 			local servers = {
 				"ts_ls",
@@ -62,13 +66,17 @@ return {
 				"prismals",
 				"cucumber_language_server",
 				"svelte",
+				"dockerls",
+				"docker_compose_language_service",
 			}
 			for _, server in ipairs(servers) do
 				lspconfig[server].setup({
 					capabilities = capabilities,
+					on_attach = function(client)
+						client.server_capabilities.semanticTokensProvider = nil -- Desactiva tokens semánticos para evitar el error
+					end,
 				})
 			end
-
 			-- Set vim motion for <Space> + c + h to show code documentation about the code the cursor is currently over if available
 			vim.keymap.set("n", "<leader>ch", vim.lsp.buf.hover, { desc = "[C]ode [H]over Documentation" })
 			-- Set vim motion for <Space> + c + d to go where the code/variable under the cursor was defined
