@@ -45,7 +45,7 @@ return {
         anchor = "NW",
         relative = "editor",
         row = math.floor((vim.o.lines - 30) / 2),   -- Centrado verticalmente (ajusta según el tamaño de la ventana flotante)
-        col = math.floor((vim.o.columns - 80) / 2),   -- Centrado horizontalmente (ajusta según el tamaño de la ventana flotante)
+        col = math.floor((vim.o.columns - 80) / 2), -- Centrado horizontalmente (ajusta según el tamaño de la ventana flotante)
       }
     })
 

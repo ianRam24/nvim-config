@@ -6,6 +6,7 @@ return {
       "rafamadriz/friendly-snippets",
       "saadparwaiz1/cmp_luasnip",
       "luckasRanarison/tailwind-tools.nvim",
+      "mlaursen/vim-react-snippets",
     },
     config = function()
       require("luasnip.loaders.from_vscode").lazy_load()
@@ -40,40 +41,21 @@ return {
       local cmp = require("cmp")
       local luasnip = require("luasnip")
       local lspkind = require("lspkind")
-      local tailwind_tools = require("tailwind-tools.cmp")
-      local kind_icons = {
-        Text = "󰉿",
-        Method = "󰆧",
-        Function = "󰊕",
-        Constructor = "",
-        Field = "",
-        Variable = "󰈜",
-        Class = "󰌗",
-        Interface = "",
-        Module = "",
-        Property = "",
-        Unit = "",
-        Value = "",
-        Enum = "",
-        Keyword = "",
-        Snippet = "",
-        Color = "",
-        File = "",
-        Reference = "",
-        Folder = "",
-        EnumMember = "",
-        Constant = "",
-        Struct = "פּ",
-        Event = "",
-        Operator = "",
-        TypeParameter = "",
-        Copilot = "󰙵",
-      }
+
+      require("vim-react-snippets").lazy_load()
+
+      local config = require("vim-react-snippets.config")
+      config.readonly_props = false
 
       cmp.setup({
         window = {
-          documentation = cmp.config.window.bordered(),
-          completion = cmp.config.window.bordered(),
+          completion = cmp.config.window.bordered({
+            border = "rounded",
+            winhighlight = "Normal:Normal,FloatBorder:FloatBorder,CursorLine:PmenuSel,Search:None",
+          }),
+          documentation = cmp.config.window.bordered({
+            border = "rounded",
+          }),
         },
         snippet = {
           expand = function(args)
@@ -96,13 +78,38 @@ return {
         }),
         formatting = {
           fields = { "kind", "abbr", "menu" },
-          format = require("tailwindcss-colorizer-cmp").formatter,
+          format = function(entry, vim_item)
+            -- Apply lspkind icons
+            vim_item = lspkind.cmp_format({
+              mode = "symbol_text",
+              maxwidth = 50,
+              ellipsis_char = "...",
+              symbol_map = {
+                Copilot = "󰚩", -- custom icon
+              },
+            })(entry, vim_item)
+
+            -- Source labels
+            vim_item.menu = ({
+              copilot = "[Copilot]",
+              nvim_lsp = "[LSP]",
+              luasnip = "[Snip]",
+              buffer = "[Buf]",
+              path = "[Path]",
+            })[entry.source.name] or ""
+
+            -- Tailwind class color preview
+            vim_item = require("tailwindcss-colorizer-cmp").formatter(entry, vim_item)
+
+            return vim_item
+          end,
         },
         experimental = {
           ghost_text = true,
         },
       })
 
+      -- Cmdline for `/`
       cmp.setup.cmdline("/", {
         mapping = cmp.mapping.preset.cmdline(),
         sources = {
@@ -110,6 +117,7 @@ return {
         },
       })
 
+      -- Cmdline for `:`
       cmp.setup.cmdline(":", {
         mapping = cmp.mapping.preset.cmdline(),
         sources = cmp.config.sources({
@@ -124,6 +132,7 @@ return {
         }),
       })
 
+      -- SQL-specific completion
       cmp.setup.filetype({ "sql", "mysql", "plsql" }, {
         sources = {
           { name = "vim-dadbod-completion" },

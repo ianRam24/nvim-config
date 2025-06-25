@@ -1,52 +1,43 @@
 return {
-	"nvim-neo-tree/neo-tree.nvim",
-	branch = "v3.x",
-	dependencies = {
-		"nvim-lua/plenary.nvim",
-		"nvim-tree/nvim-web-devicons",
-		"MunifTanjim/nui.nvim",
-	},
-	config = function()
-		-- Keymap to toggle NeoTree
-		vim.keymap.set("n", "<leader>e", ":Neotree filesystem reveal right toggle<CR>")
-
-		-- Auto command to close NeoTree when opening a file
-		vim.api.nvim_create_autocmd("BufEnter", {
-			group = vim.api.nvim_create_augroup("CloseNeoTreeOnOpen", { clear = true }),
-			pattern = "*",
-			callback = function()
-				if vim.bo.filetype ~= "neo-tree" and vim.fn.expand("%:p") ~= "" then
-					vim.cmd("Neotree close")
-				end
-			end,
-		})
-
-		-- Function to handle file creation
-		local function on_create_file(node)
-			if node.type == "file" then
-				vim.cmd("edit " .. node.path)
-				vim.cmd("Neotree close")
-			end
-		end
-
-		-- Setup NeoTree with event handlers and filtered items configuration
-		require("neo-tree").setup({
-			event_handlers = {
-				{
-					event = "file_created",
-					handler = function(args)
-						on_create_file(args)
-					end,
-				},
-			},
-			filesystem = {
-				filtered_items = {
-					visible = true, -- Show hidden files
-					hide_dotfiles = false, -- Do not hide dotfiles
-					hide_gitignored = false, -- Do not hide gitignored files
-					hide_hidden = false, -- Do not hide hidden files
-				},
-			},
-		})
-	end,
+  "nvim-neo-tree/neo-tree.nvim",
+  branch = "v3.x",
+  dependencies = {
+    "nvim-lua/plenary.nvim",
+    "MunifTanjim/nui.nvim",
+    "echasnovski/mini.icons",        -- optional if you still want mini.icons
+    "nvim-tree/nvim-web-devicons",   -- ← make sure this is listed here
+  },
+  config = function()
+    -- you can also skip mini.icons entirely if you prefer web-devicons only
+    require("neo-tree").setup({
+      default_component_configs = {
+        icon = {
+          -- these glyphs will be looked up in web-devicons (or fall back to defaults)
+          folder_closed = "",
+          folder_open   = "",
+          folder_empty  = "ﰊ",
+          default       = "",
+        },
+      },
+      filesystem = {
+        filtered_items = {
+          visible         = true,
+          hide_dotfiles   = false,
+          hide_gitignored = false,
+          hide_hidden     = false,
+        },
+      },
+      event_handlers = {
+        {
+          event   = "file_created",
+          handler = function(args)
+            if args.node.type == "file" then
+              vim.cmd("edit " .. args.node.path)
+              vim.cmd("Neotree close")
+            end
+          end,
+        },
+      },
+    })
+  end,
 }

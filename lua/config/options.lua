@@ -38,3 +38,20 @@ vim.o.swapfile = false            -- disable swap file creation
 vim.opt.hlsearch = true   -- highlight all matches in search
 vim.opt.ignorecase = true -- ignore case in search
 vim.opt.smartcase = true  -- match case if explicitly stated
+vim.opt.termguicolors = true
+
+-- Fix copy and paste in WSL (Windows Subsystem for Linux)
+if vim.fn.has("wsl") == 1 then
+  vim.g.clipboard = {
+    name = "win32yank",                  -- Use win32yank for clipboard operations
+    copy = {
+      ["+"] = "win32yank.exe -i --crlf", -- Command to copy to the system clipboard
+      ["*"] = "win32yank.exe -i --crlf", -- Command to copy to the primary clipboard
+    },
+    paste = {
+      ["+"] = "win32yank.exe -o --lf", -- Command to paste from the system clipboard
+      ["*"] = "win32yank.exe -o --lf", -- Command to paste from the primary clipboard
+    },
+    cache_enabled = false,             -- Disable clipboard caching
+  }
+end

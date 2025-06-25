@@ -29,20 +29,23 @@ vim.keymap.set("n", "<leader>wh", ":split<cr>", { desc = "[W]indow Split [H]oriz
 vim.keymap.set("v", "<", "<gv", { desc = "Indent left in visual mode" })
 vim.keymap.set("v", ">", ">gv", { desc = "Indent right in visual mode" })
 
-local move_line_up = function()
-	local count = vim.v.count1 -- Obtener el recuento actual con un valor predeterminado de 1
-	vim.cmd(":'<,'>m '<-" .. (count + 1)) -- Mover líneas hacia arriba
-	vim.cmd("gv=gv") -- Re-seleccionar y re-indentar
-end
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "moves lines down in visual selection" })
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "moves lines up in visual selection" })
 
-local move_line_down = function()
-	local count = vim.v.count1 -- Obtener el recuento actual con un valor predeterminado de 1
-	vim.cmd(":'<,'>m '>+" .. count) -- Mover líneas hacia abajo
-	vim.cmd("gv=gv") -- Re-seleccionar y re-indentar
-end
-
-vim.keymap.set("v", "K", move_line_up, { desc = "Move line up in visual mode" })
-vim.keymap.set("v", "J", move_line_down, { desc = "Move line down in visual mode" })
+-- local move_line_up = function()
+-- 	local count = vim.v.count1 -- Obtener el recuento actual con un valor predeterminado de 1
+-- 	vim.cmd(":'<,'>m '<-" .. (count + 1)) -- Mover líneas hacia arriba
+-- 	vim.cmd("gv=gv") -- Re-seleccionar y re-indentar
+-- end
+--
+-- local move_line_down = function()
+-- 	local count = vim.v.count1 -- Obtener el recuento actual con un valor predeterminado de 1
+-- 	vim.cmd(":'<,'>m '>+" .. count) -- Mover líneas hacia abajo
+-- 	vim.cmd("gv=gv") -- Re-seleccionar y re-indentar
+-- end
+--
+-- vim.keymap.set("v", "K", move_line_up, { desc = "Move line up in visual mode" })
+-- vim.keymap.set("v", "J", move_line_down, { desc = "Move line down in visual mode" })
 
 -- move line
 -- vim.keymap.set("v", "J", ":m '>+3<CR>gv=gv")
@@ -50,14 +53,14 @@ vim.keymap.set("v", "J", move_line_down, { desc = "Move line down in visual mode
 
 -- Search and replace
 vim.keymap.set(
-	"n",
-	"<leader>rw",
-	":%s/\\<<C-r><C-w>\\>//gc<Left><Left><Left>",
-	{ silent = false, desc = "[R]eplace [W]ord" }
+  "n",
+  "<leader>rw",
+  ":%s/\\<<C-r><C-w>\\>//gc<Left><Left><Left>",
+  { silent = false, desc = "[R]eplace [W]ord" }
 )
 vim.keymap.set(
-	"n",
-	"<leader>RW",
-	":%s/\\<<C-r><C-w>\\>//gc<Left><Left><Left>",
-	{ silent = false, desc = "[R]eplace [W]ord in file" }
+  "n",
+  "<leader>RW",
+  ":%s/\\<<C-r><C-w>\\>//gc<Left><Left><Left>",
+  { silent = false, desc = "[R]eplace [W]ord in file" }
 )
