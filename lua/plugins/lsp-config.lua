@@ -9,7 +9,11 @@ return {
     "williamboman/mason-lspconfig.nvim",
     config = function()
       require("mason-lspconfig").setup({
-        ensure_installed = { "lua_ls", "ts_ls", "jdtls" },
+        ensure_installed = {
+          "lua_ls",
+          "ts_ls",
+          "tailwindcss",
+        },
       })
     end,
   },
@@ -17,7 +21,10 @@ return {
     "jay-babu/mason-nvim-dap.nvim",
     config = function()
       require("mason-nvim-dap").setup({
-        ensure_installed = { "java-debug-adapter", "java-test" },
+        ensure_installed = {
+          "java-debug-adapter",
+          "java-test",
+        },
       })
     end,
   },
@@ -27,10 +34,17 @@ return {
   },
   {
     "themaxmarchuk/tailwindcss-colors.nvim",
-    lazy = true,
-    module = "tailwindcss-colors",
+    lazy = false,
     config = function()
       require("tailwindcss-colors").setup()
+    end,
+  },
+  {
+    "mrshmllow/document-color.nvim",
+    config = function()
+      require("document-color").setup({
+        mode = "background",
+      })
     end,
   },
   {
@@ -38,35 +52,23 @@ return {
     config = function()
       local lspconfig = require("lspconfig")
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
-
-      -- Add Tailwind colorProvider support
       capabilities.textDocument.colorProvider = { dynamicRegistration = true }
 
       local on_attach = function(client, bufnr)
-        -- Optional: disable semanticTokens if needed
         if client.server_capabilities.semanticTokensProvider then
           client.server_capabilities.semanticTokensProvider = nil
         end
 
-        -- Attach tailwind colorizer
         if client.server_capabilities.colorProvider then
           require("document-color").buf_attach(bufnr)
         end
       end
-
-      -- Omnisharp setup
-      lspconfig.omnisharp.setup({
-        cmd = { "dotnet", "/home/acer/.local/share/nvim/mason/packages/omnisharp/libexec/OmniSharp.dll" },
-        capabilities = capabilities,
-        on_attach = on_attach,
-      })
 
       local servers = {
         "ts_ls",
         "cssls",
         "html",
         "lua_ls",
-        "jdtls",
         "nextls",
         "tailwindcss",
         "pylsp",
@@ -78,48 +80,56 @@ return {
         "svelte",
         "dockerls",
         "docker_compose_language_service",
-        "csharp_ls"
+        "csharp_ls",
       }
 
       for _, server in ipairs(servers) do
-        lspconfig[server].setup({
-          capabilities = capabilities,
-          on_attach = on_attach,
-        })
+        if lspconfig[server] then
+          lspconfig[server].setup({
+            capabilities = capabilities,
+            on_attach = on_attach,
+          })
+        else
+          vim.notify("LSP server not found in lspconfig: " .. server, vim.log.levels.WARN)
+        end
       end
 
-      -- Signs & Diagnostics UI
-      local signs = {
-        Error = " ",
-        Warn = " ",
-        Hint = "󰠠 ",
-        Info = " "
-      }
-      for type, icon in pairs(signs) do
-        vim.fn.sign_define("DiagnosticSign" .. type, { text = icon, texthl = "DiagnosticSign" .. type })
-      end
+      -- Java-specific
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "java",
+        callback = function()
+          require("config.jdtls").setup_jdtls()
+        end,
+      })
 
       vim.diagnostic.config({
         virtual_text = {
           prefix = "●",
           severity = { min = vim.diagnostic.severity.INFO },
         },
-        signs = true,
+        signs = {
+          text = {
+            [vim.diagnostic.severity.ERROR] = "",
+            [vim.diagnostic.severity.WARN]  = "",
+            [vim.diagnostic.severity.HINT]  = "󰠠",
+            [vim.diagnostic.severity.INFO]  = "",
+          },
+        },
         underline = true,
         update_in_insert = false,
         severity_sort = true,
       })
 
-      -- LSP Keymaps
-      vim.keymap.set("n", "<leader>ch", vim.lsp.buf.hover, { desc = "[C]ode [H]over Documentation" })
-      vim.keymap.set("n", "<leader>cd", vim.lsp.buf.definition, { desc = "[C]ode Goto [D]efinition" })
-      vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "[C]ode [A]ctions" })
-      vim.keymap.set("n", "<leader>cr", require("telescope.builtin").lsp_references,
-        { desc = "[C]ode Goto [R]eferences" })
-      vim.keymap.set("n", "<leader>ci", require("telescope.builtin").lsp_implementations,
-        { desc = "[C]ode Goto [I]mplementations" })
-      vim.keymap.set("n", "<leader>cR", vim.lsp.buf.rename, { desc = "[C]ode [R]ename" })
-      vim.keymap.set("n", "<leader>cD", vim.lsp.buf.declaration, { desc = "[C]ode Goto [D]eclaration" })
+
+      -- 🧼 Silenciar "failed to decode json" globalmente
+      local orig_handler = vim.lsp.handlers["window/showMessage"]
+
+      vim.lsp.handlers["window/showMessage"] = function(_, result, ctx, config)
+        if result and result.message and result.message:match("failed to decode json") then
+          return
+        end
+        return orig_handler(_, result, ctx, config)
+      end
     end,
   },
 }

@@ -1,28 +1,25 @@
 return {
-  -- HACK: docs @ https://github.com/folke/snacks.nvim/blob/main/docs
   {
     "folke/snacks.nvim",
     priority = 1000,
     lazy = false,
-    -- NOTE: Options
+
     opts = {
       styles = {
         input = {
-          keys = {
-          },
+          keys = {},
           n_esc = { "<C-c>", { "cmp_close", "cancel" }, mode = "n", expr = true },
           i_esc = { "<C-c>", { "cmp_close", "stopinsert" }, mode = "i", expr = true },
-        }
+        },
       },
-      -- Snacks Modules
-      input = {
-        enabled = true,
-      },
+
+      input = { enabled = true },
+
       quickfile = {
         enabled = true,
         exclude = { "latex" },
       },
-      -- HACK: read picker docs @ https://github.com/folke/snacks.nvim/blob/main/docs/picker.md
+
       picker = {
         enabled = true,
         matchers = {
@@ -37,9 +34,7 @@ return {
           },
         },
         layout = {
-          -- presets options : "default" , "ivy" , "ivy-split" , "telescope" , "vscode", "select" , "sidebar"
-          -- override picker layout in keymaps function as a param below
-          preset = "telescope", -- defaults to this layout unless overidden
+          preset = "telescope",
           cycle = false,
         },
         layouts = {
@@ -58,10 +53,10 @@ return {
               { win = "input",   height = 1,          border = "bottom" },
               { win = "list",    border = "none" },
               { win = "preview", title = "{preview}", width = 0.6,      height = 0.4, border = "top" },
-            }
+            },
           },
           telescope = {
-            reverse = true, -- set to false for search bar to be on top
+            reverse = true,
             layout = {
               box = "horizontal",
               backdrop = false,
@@ -69,16 +64,13 @@ return {
               height = 0.9,
               border = "none",
               {
-                box = "vertical",
-                { win = "list",  title = " Results ", title_pos = "center", border = "rounded" },
-                { win = "input", height = 1,          border = "rounded",   title = "{title} {live} {flags}", title_pos = "center" },
-              },
-              {
-                win = "preview",
-                title = "{preview:Preview}",
-                width = 0.50,
-                border = "rounded",
-                title_pos = "center",
+                box = "horizontal",
+                { win = "preview", title = "{preview:Preview}", width = 0.5, border = "rounded", title_pos = "center" },
+                {
+                  box = "vertical",
+                  { win = "list",  title = " Results ", title_pos = "center", border = "rounded" },
+                  { win = "input", height = 1,          border = "rounded",   title = "{title} {live} {flags}", title_pos = "center" },
+                },
               },
             },
           },
@@ -100,25 +92,28 @@ return {
               },
             },
           },
-        }
+        },
       },
+
       image = {
         enabled = true,
         doc = {
-          float = true,   -- show image on cursor hover
-          inline = false, -- show image inline
+          float = true,
+          inline = false,
           max_width = 50,
           max_height = 30,
-          wo = {
-            wrap = false,
-          },
+          wo = { wrap = false },
         },
         convert = {
           notify = true,
-          command = "magick"
+          command = "magick",
         },
-        img_dirs = { "img", "images", "assets", "static", "public", "media", "attachments", "Archives/All-Vault-Images/", "~/Library", "~/Downloads" },
+        img_dirs = {
+          "img", "images", "assets", "static", "public", "media", "attachments",
+          "Archives/All-Vault-Images/", "~/Library", "~/Downloads"
+        },
       },
+
       dashboard = {
         enabled = true,
         sections = {
@@ -134,43 +129,80 @@ return {
           },
         },
       },
+
+      explorer = {
+        enabled = true,
+        -- Configuración alternativa más simple
+        win = {
+          position = "right",
+          width = 30,
+          height = 0,
+          border = "rounded",
+          title = "Explorer",
+          title_pos = "center",
+        },
+        show_hidden = true,
+        follow_file = true,
+        indent = 2,
+      },
     },
-    -- NOTE: Keymaps
+
+    config = function()
+      -- No extra setup needed
+    end,
+
     keys = {
-      { "<leader>lg",  function() require("snacks").lazygit() end,                                        desc = "Lazygit" },
-      { "<leader>gl",  function() require("snacks").lazygit.log() end,                                    desc = "Lazygit Logs" },
-      { "<leader>rN",  function() require("snacks").rename.rename_file() end,                             desc = "Fast Rename Current File" },
-      { "<leader>dB",  function() require("snacks").bufdelete() end,                                      desc = "Delete or Close Buffer  (Confirm)" },
+      -- Pickers / Files
+      { "<C-p>",           function() require("snacks").picker.files() end,                                   desc = "Find Files" },
+      { "<leader><space>", function() require("snacks").picker.smart() end,                                   desc = "Smart Find Files" },
+      { "<leader>pc",      function() require("snacks").picker.files({ cwd = vim.fn.stdpath("config") }) end, desc = "Find Config File" },
+      { "<leader>ps",      function() require("snacks").picker.grep() end,                                    desc = "Grep Word" },
+      { "<leader>pws",     function() require("snacks").picker.grep_word() end,                               desc = "Search Word or Selection",        mode = { "n", "x" } },
+      { "<leader>pk",      function() require("snacks").picker.keymaps({ layout = "ivy" }) end,               desc = "Search Keymaps" },
+      { "<leader>th",      function() require("snacks").picker.colorschemes({ layout = "ivy" }) end,          desc = "Pick Color Schemes" },
+      { "<leader>vh",      function() require("snacks").picker.help() end,                                    desc = "Help Pages" },
 
-      -- Snacks Picker
-      { "<C-p>",       function() require("snacks").picker.files() end,                                   desc = "Find Files (Snacks Picker)" },
-      { "<leader>pc",  function() require("snacks").picker.files({ cwd = vim.fn.stdpath("config") }) end, desc = "Find Config File" },
-      { "<leader>ps",  function() require("snacks").picker.grep() end,                                    desc = "Grep word" },
-      { "<leader>pws", function() require("snacks").picker.grep_word() end,                               desc = "Search Visual selection or Word",  mode = { "n", "x" } },
-      { "<leader>pk",  function() require("snacks").picker.keymaps({ layout = "ivy" }) end,               desc = "Search Keymaps (Snacks Picker)" },
+      -- LSP
+      { "gd",              function() require("snacks").picker.lsp_definitions() end,                         desc = "Goto Definition" },
+      { "gD",              function() require("snacks").picker.lsp_declarations() end,                        desc = "Goto Declaration" },
+      { "gI",              function() require("snacks").picker.lsp_implementations() end,                     desc = "Goto Implementation" },
 
-      -- Git Stuff
-      { "<leader>gbr", function() require("snacks").picker.git_branches({ layout = "select" }) end,       desc = "Pick and Switch Git Branches" },
-      { "<leader>lg",  function() Snacks.lazygit() end,                                                   desc = "Lazygit" },
+      -- Git
+      { "<leader>lg",      function() require("snacks").lazygit() end,                                        desc = "Lazygit" },
+      { "<leader>gl",      function() require("snacks").lazygit.log() end,                                    desc = "Lazygit Logs" },
+      { "<leader>gbr",     function() require("snacks").picker.git_branches({ layout = "select" }) end,       desc = "Git Branch Picker" },
 
-      -- NOTE: LSP
-      { "gd",          function() Snacks.picker.lsp_definitions() end,                                    desc = "Goto Definition" },
-      { "gD",          function() Snacks.picker.lsp_declarations() end,                                   desc = "Goto Declaration" },
-      { "gI",          function() Snacks.picker.lsp_implementations() end,                                desc = "Goto Implementation" },
+      -- Buffers / File Management
+      { "<leader>rN",      function() require("snacks").rename.rename_file() end,                             desc = "Fast Rename Current File" },
+      { "<leader>dB",      function() require("snacks").bufdelete() end,                                      desc = "Delete or Close Buffer (Confirm)" },
 
-      -- Other Utils
-      { "<leader>th",  function() require("snacks").picker.colorschemes({ layout = "ivy" }) end,          desc = "Pick Color Schemes" },
-      { "<leader>vh",  function() require("snacks").picker.help() end,                                    desc = "Help Pages" },
-    }
+      -- File Explorer
+      { "<leader>e",       function() require("snacks").explorer() end,                                       desc = "File Explorer" },
+
+      -- Terminal
+      { "<leader>tt",      function() require("snacks").terminal() end,                                       desc = "Toggle Terminal" },
+    },
   },
-  -- NOTE: todo comments w/ snacks
+
   {
     "folke/todo-comments.nvim",
     event = { "BufReadPre", "BufNewFile" },
     optional = true,
     keys = {
-      { "<leader>pt", function() require("snacks").picker.todo_comments() end,                                          desc = "Todo" },
-      { "<leader>pT", function() require("snacks").picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } }) end, desc = "Todo/Fix/Fixme" },
+      {
+        "<leader>pt",
+        function() require("snacks").picker.todo_comments() end,
+        desc = "Todo",
+      },
+      {
+        "<leader>pT",
+        function()
+          require("snacks").picker.todo_comments({
+            keywords = { "TODO", "FIX", "FIXME" }
+          })
+        end,
+        desc = "Todo/Fix/Fixme",
+      },
     },
-  }
+  },
 }

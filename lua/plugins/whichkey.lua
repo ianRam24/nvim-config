@@ -36,7 +36,6 @@ return {
         c = { ":DebugContinue<CR>", "Continue Debugging" },
       },
 
-      e = { ":Neotree filesystem reveal right toggle<CR>", "File Explorer" },
 
       G = {
         name = "[G]it",
