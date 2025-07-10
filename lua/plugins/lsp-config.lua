@@ -24,6 +24,7 @@ return {
         ensure_installed = {
           "java-debug-adapter",
           "java-test",
+          "codelldb"
         },
       })
     end,
@@ -81,6 +82,7 @@ return {
         "dockerls",
         "docker_compose_language_service",
         "csharp_ls",
+        "clangd"
       }
 
       for _, server in ipairs(servers) do

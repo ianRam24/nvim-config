@@ -132,7 +132,10 @@ return {
 
       explorer = {
         enabled = true,
-        -- Configuración alternativa más simple
+        show_hidden = true,
+        follow_file = true,
+        indent = 2,
+        -- Configuración de ventana directa
         win = {
           position = "right",
           width = 30,
@@ -141,9 +144,6 @@ return {
           title = "Explorer",
           title_pos = "center",
         },
-        show_hidden = true,
-        follow_file = true,
-        indent = 2,
       },
     },
 
@@ -176,7 +176,7 @@ return {
       { "<leader>rN",      function() require("snacks").rename.rename_file() end,                             desc = "Fast Rename Current File" },
       { "<leader>dB",      function() require("snacks").bufdelete() end,                                      desc = "Delete or Close Buffer (Confirm)" },
 
-      -- File Explorer
+      -- File Explorer - Configuración simple
       { "<leader>e",       function() require("snacks").explorer() end,                                       desc = "File Explorer" },
 
       -- Terminal
