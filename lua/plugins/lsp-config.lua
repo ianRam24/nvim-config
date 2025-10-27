@@ -2,136 +2,101 @@ return {
   {
     "williamboman/mason.nvim",
     config = function()
-      require("mason").setup()
+      require("mason").setup({
+        registries = {
+          "github:Crashdummyy/mason-registry",
+          "github:mason-org/mason-registry",
+        },
+      })
     end,
   },
+
   {
     "williamboman/mason-lspconfig.nvim",
     config = function()
       require("mason-lspconfig").setup({
         ensure_installed = {
+          "html",
           "lua_ls",
           "ts_ls",
           "tailwindcss",
+          "pylsp",
+          "dockerls",
+          "clangd",
         },
       })
     end,
   },
+
   {
-    "jay-babu/mason-nvim-dap.nvim",
+    "seblyng/roslyn.nvim",
+    ft = { "cs", "razor" },
+    dependencies = { "tris203/rzls.nvim" },
     config = function()
-      require("mason-nvim-dap").setup({
-        ensure_installed = {
-          "java-debug-adapter",
-          "java-test",
-          "codelldb"
+      local rzls_path = vim.fn.expand("$MASON/packages/rzls/libexec")
+
+      require("roslyn").setup({
+        cmd = {
+          "roslyn",
+          "--stdio",
+          "--logLevel=Information",
+          "--extensionLogDirectory=" .. vim.fs.dirname(vim.lsp.get_log_path()),
+          "--razorSourceGenerator="
+          .. vim.fs.joinpath(rzls_path, "Microsoft.CodeAnalysis.Razor.Compiler.dll"),
+          "--razorDesignTimePath="
+          .. vim.fs.joinpath(rzls_path, "Targets", "Microsoft.NET.Sdk.Razor.DesignTime.targets"),
+          "--extension",
+          vim.fs.joinpath(rzls_path, "RazorExtension", "Microsoft.VisualStudioCode.RazorExtension.dll"),
         },
+        handlers = require("rzls.roslyn_handlers"),
       })
     end,
   },
-  {
-    "mfussenegger/nvim-jdtls",
-    dependencies = { "mfussenegger/nvim-dap" },
-  },
-  {
-    "themaxmarchuk/tailwindcss-colors.nvim",
-    lazy = false,
-    config = function()
-      require("tailwindcss-colors").setup()
-    end,
-  },
-  {
-    "mrshmllow/document-color.nvim",
-    config = function()
-      require("document-color").setup({
-        mode = "background",
-      })
-    end,
-  },
+
   {
     "neovim/nvim-lspconfig",
     config = function()
-      local lspconfig = require("lspconfig")
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
-      capabilities.textDocument.colorProvider = { dynamicRegistration = true }
-
       local on_attach = function(client, bufnr)
-        if client.server_capabilities.semanticTokensProvider then
-          client.server_capabilities.semanticTokensProvider = nil
-        end
-
-        if client.server_capabilities.colorProvider then
-          require("document-color").buf_attach(bufnr)
-        end
+        vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Hover Documentation" })
+        vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename Symbol" })
       end
 
       local servers = {
-        "ts_ls",
-        "cssls",
-        "html",
-        "lua_ls",
-        "nextls",
-        "tailwindcss",
-        "pylsp",
-        "eslint",
-        "quick_lint_js",
-        "emmet_ls",
-        "prismals",
-        "cucumber_language_server",
-        "svelte",
-        "dockerls",
-        "docker_compose_language_service",
-        "csharp_ls",
-        "clangd"
-      }
-
-      for _, server in ipairs(servers) do
-        if lspconfig[server] then
-          lspconfig[server].setup({
-            capabilities = capabilities,
-            on_attach = on_attach,
-          })
-        else
-          vim.notify("LSP server not found in lspconfig: " .. server, vim.log.levels.WARN)
-        end
-      end
-
-      -- Java-specific
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "java",
-        callback = function()
-          require("config.jdtls").setup_jdtls()
-        end,
-      })
-
-      vim.diagnostic.config({
-        virtual_text = {
-          prefix = "●",
-          severity = { min = vim.diagnostic.severity.INFO },
-        },
-        signs = {
-          text = {
-            [vim.diagnostic.severity.ERROR] = "",
-            [vim.diagnostic.severity.WARN]  = "",
-            [vim.diagnostic.severity.HINT]  = "󰠠",
-            [vim.diagnostic.severity.INFO]  = "",
+        html = {},
+        lua_ls = {
+          settings = {
+            Lua = {
+              diagnostics = { globals = { "vim" } },
+              workspace = { checkThirdParty = false },
+            },
           },
         },
+        ts_ls = {},
+        tailwindcss = {},
+        pylsp = {},
+        dockerls = {},
+        clangd = {},
+      }
+
+      -- 🧠 Nueva API (Neovim 0.11+)
+      for name, config in pairs(servers) do
+        vim.lsp.config[name] = vim.tbl_deep_extend("force", {
+          capabilities = capabilities,
+          on_attach = on_attach,
+        }, config)
+
+        vim.lsp.enable(name)
+      end
+
+      -- Diagnósticos bonitos
+      vim.diagnostic.config({
+        virtual_text = { prefix = "●" },
+        signs = true,
         underline = true,
         update_in_insert = false,
         severity_sort = true,
       })
-
-
-      -- 🧼 Silenciar "failed to decode json" globalmente
-      local orig_handler = vim.lsp.handlers["window/showMessage"]
-
-      vim.lsp.handlers["window/showMessage"] = function(_, result, ctx, config)
-        if result and result.message and result.message:match("failed to decode json") then
-          return
-        end
-        return orig_handler(_, result, ctx, config)
-      end
     end,
   },
 }
