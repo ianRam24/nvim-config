@@ -1,70 +1,60 @@
 return {
-  "folke/which-key.nvim",
-  event = "VimEnter",
-  config = function()
-    local which_key = require("which-key")
+	"folke/which-key.nvim",
+	event = "VimEnter",
+	config = function()
+		local wk = require("which-key")
 
-    which_key.setup({})
+		wk.setup({})
 
-    -- Leader key mappings
-    which_key.register({
-      ["/"] = { ":CommentToggle<CR>", "Toggle Comments" },
+		wk.add({
+			-- Leader mappings
+			{ "<leader>/", ":CommentToggle<CR>", desc = "Toggle Comments" },
 
-      C = {
-        name = "[C]sharp",
-        a = { ":lua require('csharp').fix_all()<CR>", "Fix All" },
-        r = { ":lua require('csharp').run_project()<CR>", "Run Project" },
-        s = { ":lua require('csharp').view_user_secrets()<CR>", "View User Secrets" },
-        u = { ":lua require('csharp').fix_usings()<CR>", "Fix Usings" },
-      },
+			-- C# group
+			{ "<leader>C", group = "[C]sharp" },
+			{ "<leader>Ca", ":lua require('csharp').fix_all()<CR>", desc = "Fix All" },
+			{ "<leader>Cr", ":lua require('csharp').run_project()<CR>", desc = "Run Project" },
+			{ "<leader>Cs", ":lua require('csharp').view_user_secrets()<CR>", desc = "View User Secrets" },
+			{ "<leader>Cu", ":lua require('csharp').fix_usings()<CR>", desc = "Fix Usings" },
 
-      J = {
-        name = "[J]ava",
-        b = { ":JBuild<CR>", "Build Java" },
-        r = { ":JRun<CR>", "Run Java" },
-      },
+			-- Java group
+			{ "<leader>J", group = "[J]ava" },
+			{ "<leader>Jb", ":JBuild<CR>", desc = "Build Java" },
+			{ "<leader>Jr", ":JRun<CR>", desc = "Run Java" },
 
-      c = {
-        name = "[C]ode",
-        a = { ":lua vim.lsp.buf.code_action()<CR>", "Code Action" },
-        f = { ":lua vim.lsp.buf.formatting()<CR>", "Format Code" },
-      },
+			-- Code group
+			{ "<leader>c", group = "[C]ode" },
+			{ "<leader>ca", ":lua vim.lsp.buf.code_action()<CR>", desc = "Code Action" },
+			{ "<leader>cf", ":lua vim.lsp.buf.formatting()<CR>", desc = "Format Code" },
 
-      d = {
-        name = "[D]ebug",
-        b = { ":DebugToggleBreakpoint<CR>", "Toggle Breakpoint" },
-        c = { ":DebugContinue<CR>", "Continue Debugging" },
-      },
+			-- Debug group
+			{ "<leader>d", group = "[D]ebug" },
+			{ "<leader>db", ":DebugToggleBreakpoint<CR>", desc = "Toggle Breakpoint" },
+			{ "<leader>dc", ":DebugContinue<CR>", desc = "Continue Debugging" },
 
+			-- Git group
+			{ "<leader>G", group = "[G]it" },
+			{ "<leader>GA", ":Git add .<CR>", desc = "Add [A]ll" },
+			{ "<leader>Ga", ":Git add %<CR>", desc = "Add Current File" },
+			{ "<leader>GB", ":Git blame<CR>", desc = "[B]lame" },
+			{ "<leader>GC", ":Git commit<CR>", desc = "[C]ommit" },
+			{ "<leader>GP", ":Git push<CR>", desc = "[P]ush" },
+			{ "<leader>Gh", ":Gitsigns preview_hunk<CR>", desc = "Preview [H]unk" },
 
-      G = {
-        name = "[G]it",
-        A = { ":Git add .<CR>", "Add [A]ll" },
-        a = { ":Git add %<CR>", "Add Current File" },
-        B = { ":Git blame<CR>", "[B]lame" },
-        C = { ":Git commit<CR>", "[C]ommit" },
-        P = { ":Git push<CR>", "[P]ush" },
-        h = { ":Gitsigns preview_hunk<CR>", "Preview [H]unk" },
-      },
+			-- Test group
+			{ "<leader>t", group = "[T]est" },
+			{ "<leader>tr", ":TestRun<CR>", desc = "Run Tests" },
 
-      t = {
-        name = "[T]est",
-        r = { ":TestRun<CR>", "Run Tests" },
-      },
+			-- Window group
+			{ "<leader>w", group = "[W]indow" },
+			{ "<leader>ws", ":split<CR>", desc = "Horizontal Split" },
+			{ "<leader>wv", ":vsplit<CR>", desc = "Vertical Split" },
 
-      w = {
-        name = "[W]indow",
-        s = { ":split<CR>", "Horizontal Split" },
-        v = { ":vsplit<CR>", "Vertical Split" },
-      },
-    }, { prefix = "<leader>" })
-
-    -- Ctrl mappings (fixed format)
-    which_key.register({
-      ["<C-a>"] = { ":lua require('csharp').fix_all()<CR>", "Fix All" },
-      ["<C-r>"] = { ":lua require('csharp').run_project()<CR>", "Run Project" },
-      ["<C-s>"] = { ":lua require('csharp').view_user_secrets()<CR>", "View User Secrets" },
-      ["<C-u>"] = { ":lua require('csharp').fix_usings()<CR>", "Fix Usings" },
-    })
-  end,
+			-- Ctrl mappings
+			{ "<C-a>", ":lua require('csharp').fix_all()<CR>", desc = "Fix All" },
+			{ "<C-r>", ":lua require('csharp').run_project()<CR>", desc = "Run Project" },
+			{ "<C-s>", ":lua require('csharp').view_user_secrets()<CR>", desc = "View User Secrets" },
+			{ "<C-u>", ":lua require('csharp').fix_usings()<CR>", desc = "Fix Usings" },
+		})
+	end,
 }
