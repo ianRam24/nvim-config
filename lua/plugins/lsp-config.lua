@@ -43,12 +43,16 @@ return {
 
 	{
 		"seblyng/roslyn.nvim",
+		---@module 'roslyn.config'
+		---@type RoslynNvimConfig
 		ft = { "cs", "razor" },
-		dependencies = { "tris203/rzls.nvim" },
+		lazy = false,
 		config = function()
-			local rzls_path = vim.fn.expand("$MASON/packages/rzls/libexec")
+			local mason_root = require("mason.settings").current.install_root_dir
+			local rzls_path = vim.fn.expand(mason_root .. "/packages/roslyn/libexec/.razorExtension")
 
-			require("roslyn").setup({
+			vim.lsp.config("roslyn", {
+				--  https://github.com/tris203/rzls.nvim?tab=readme-ov-file#composing-the-command-for-roslyn
 				cmd = {
 					"roslyn",
 					"--stdio",
@@ -58,10 +62,8 @@ return {
 						.. vim.fs.joinpath(rzls_path, "Microsoft.CodeAnalysis.Razor.Compiler.dll"),
 					"--razorDesignTimePath="
 						.. vim.fs.joinpath(rzls_path, "Targets", "Microsoft.NET.Sdk.Razor.DesignTime.targets"),
-					"--extension",
-					vim.fs.joinpath(rzls_path, "RazorExtension", "Microsoft.VisualStudioCode.RazorExtension.dll"),
+					"--extension=" .. vim.fs.joinpath(rzls_path, "Microsoft.VisualStudioCode.RazorExtension.dll"),
 				},
-				handlers = require("rzls.roslyn_handlers"),
 			})
 		end,
 	},
