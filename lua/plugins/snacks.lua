@@ -286,7 +286,6 @@ return {
 			desc = "Delete or Close Buffer (Confirm)",
 		},
 
-		-- File Explorer
 		{
 			"<leader>e",
 			function()

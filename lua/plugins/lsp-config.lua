@@ -22,7 +22,6 @@ return {
 					"cssls",
 					"lua_ls",
 					"tailwindcss",
-					"pylsp",
 					"dockerls",
 					"clangd",
 					"svelte",
@@ -36,6 +35,8 @@ return {
 					"docker_compose_language_service",
 					"quick_lint_js",
 					"biome",
+					"kotlin_lsp",
+					"ruff",
 				},
 			})
 		end,
@@ -72,13 +73,6 @@ return {
 		"neovim/nvim-lspconfig",
 		config = function()
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
-			local on_attach = function(_, bufnr)
-				local opts = { buffer = bufnr }
-				vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-				vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-				vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
-				vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
-			end
 
 			local servers = {
 				ts_ls = {},
@@ -93,7 +87,7 @@ return {
 					},
 				},
 				tailwindcss = {},
-				pylsp = {},
+				ruff = {},
 				dockerls = {},
 				clangd = {},
 				svelte = {},
@@ -108,6 +102,7 @@ return {
 				quick_lint_js = {},
 				biome = {},
 				roslyn = {},
+				kotlin_lsp = {},
 			}
 
 			-- 🧠 Nueva API (Neovim 0.11+)
