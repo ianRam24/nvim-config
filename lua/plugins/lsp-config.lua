@@ -35,7 +35,7 @@ return {
 					"docker_compose_language_service",
 					"quick_lint_js",
 					"biome",
-					"kotlin_lsp",
+					"ktlint",
 					"ruff",
 				},
 			})
@@ -44,27 +44,21 @@ return {
 
 	{
 		"seblyng/roslyn.nvim",
+		ft = { "cs", "razor" },
+		dependencies = {
+			"mason-org/mason.nvim",
+			"hrsh7th/cmp-nvim-lsp",
+		},
 		---@module 'roslyn.config'
 		---@type RoslynNvimConfig
-		ft = { "cs", "razor" },
-		lazy = false,
-		config = function()
-			local mason_root = require("mason.settings").current.install_root_dir
-			local rzls_path = vim.fn.expand(mason_root .. "/packages/roslyn/libexec/.razorExtension")
+		opts = {
+			broad_search = true,
+		},
+		config = function(_, opts)
+			require("roslyn").setup(opts)
 
 			vim.lsp.config("roslyn", {
-				--  https://github.com/tris203/rzls.nvim?tab=readme-ov-file#composing-the-command-for-roslyn
-				cmd = {
-					"roslyn",
-					"--stdio",
-					"--logLevel=Information",
-					"--extensionLogDirectory=" .. vim.fs.dirname(vim.lsp.get_log_path()),
-					"--razorSourceGenerator="
-						.. vim.fs.joinpath(rzls_path, "Microsoft.CodeAnalysis.Razor.Compiler.dll"),
-					"--razorDesignTimePath="
-						.. vim.fs.joinpath(rzls_path, "Targets", "Microsoft.NET.Sdk.Razor.DesignTime.targets"),
-					"--extension=" .. vim.fs.joinpath(rzls_path, "Microsoft.VisualStudioCode.RazorExtension.dll"),
-				},
+				capabilities = require("cmp_nvim_lsp").default_capabilities(),
 			})
 		end,
 	},
@@ -73,6 +67,61 @@ return {
 		"neovim/nvim-lspconfig",
 		config = function()
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+			vim.api.nvim_create_autocmd("LspAttach", {
+				callback = function(ev)
+					local opts = { buffer = ev.buf, silent = true }
+					vim.keymap.set(
+						"n",
+						"gd",
+						vim.lsp.buf.definition,
+						vim.tbl_extend("force", opts, { desc = "Go to definition" })
+					)
+					vim.keymap.set(
+						"n",
+						"gD",
+						vim.lsp.buf.declaration,
+						vim.tbl_extend("force", opts, { desc = "Go to declaration" })
+					)
+					vim.keymap.set(
+						"n",
+						"gi",
+						vim.lsp.buf.implementation,
+						vim.tbl_extend("force", opts, { desc = "Go to implementation" })
+					)
+					vim.keymap.set(
+						"n",
+						"gI",
+						vim.lsp.buf.implementation,
+						vim.tbl_extend("force", opts, { desc = "Go to implementation" })
+					)
+					vim.keymap.set(
+						"n",
+						"gr",
+						vim.lsp.buf.references,
+						vim.tbl_extend("force", opts, { desc = "References" })
+					)
+					vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover" }))
+					vim.keymap.set(
+						"n",
+						"<leader>ca",
+						vim.lsp.buf.code_action,
+						vim.tbl_extend("force", opts, { desc = "Code action" })
+					)
+					vim.keymap.set(
+						"n",
+						"<leader>vrn",
+						vim.lsp.buf.rename,
+						vim.tbl_extend("force", opts, { desc = "Rename symbol" })
+					)
+					vim.keymap.set(
+						"n",
+						"df",
+						vim.diagnostic.open_float,
+						vim.tbl_extend("force", opts, { desc = "Line diagnostics" })
+					)
+				end,
+			})
 
 			local servers = {
 				ts_ls = {},
@@ -101,21 +150,19 @@ return {
 				docker_compose_language_service = {},
 				quick_lint_js = {},
 				biome = {},
-				roslyn = {},
-				kotlin_lsp = {},
+				ktlint = {},
 			}
 
-			-- 🧠 Nueva API (Neovim 0.11+)
 			for name, config in pairs(servers) do
-				vim.lsp.config[name] = vim.tbl_deep_extend("force", {
-					capabilities = capabilities,
-					on_attach = on_attach,
-				}, config)
-
+				vim.lsp.config(
+					name,
+					vim.tbl_deep_extend("force", {
+						capabilities = capabilities,
+					}, config)
+				)
 				vim.lsp.enable(name)
 			end
 
-			-- Diagnósticos visuales
 			vim.diagnostic.config({
 				virtual_text = { prefix = "●" },
 				signs = true,
