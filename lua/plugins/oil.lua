@@ -6,7 +6,7 @@ return {
   },
   config = function()
     require("oil").setup({
-      default_file_explorer = true,
+      default_file_explorer = false,
       use_devicons          = true,      -- ← turn on icons
       view_options          = {
         show_hidden = true,

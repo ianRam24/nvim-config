@@ -149,149 +149,69 @@ return {
 			},
 		},
 
-		-- Resto de tu configuración...
 		explorer = {
 			enabled = true,
-			show_hidden = true,
-			follow_file = true,
-			indent = 2,
-			win = {
-				position = "right",
-				width = 30,
-				border = "rounded",
-				title = "Explorer",
-				title_pos = "center",
-			},
+			replace_netrw = true,
 		},
 	},
-	keys = {
-		-- Pickers / Files
-		{
-			"<C-p>",
-			function()
-				require("snacks").picker.files()
-			end,
-			desc = "Find Files",
-		},
-		{
-			"<leader><space>",
-			function()
-				require("snacks").picker.smart()
-			end,
-			desc = "Smart Find Files",
-		},
-		{
-			"<leader>pc",
-			function()
-				require("snacks").picker.files({ cwd = vim.fn.stdpath("config") })
-			end,
-			desc = "Find Config File",
-		},
-		{
-			"<leader>ps",
-			function()
-				require("snacks").picker.grep()
-			end,
-			desc = "Grep Word",
-		},
-		{
-			"<leader>pws",
-			function()
-				require("snacks").picker.grep_word()
-			end,
-			desc = "Search Word or Selection",
-			mode = { "n", "x" },
-		},
-		{
-			"<leader>pk",
-			function()
-				require("snacks").picker.keymaps({ layout = "ivy" })
-			end,
-			desc = "Search Keymaps",
-		},
-		{
-			"<leader>th",
-			function()
-				require("snacks").picker.colorschemes({ layout = "ivy" })
-			end,
-			desc = "Pick Color Schemes",
-		},
-		{
-			"<leader>vh",
-			function()
-				require("snacks").picker.help()
-			end,
-			desc = "Help Pages",
-		},
+	config = function(_, opts)
+		local snacks = require("snacks")
+		snacks.setup(opts)
 
-		-- LSP
-		{
-			"gd",
-			function()
-				require("snacks").picker.lsp_definitions()
-			end,
-			desc = "Goto Definition",
-		},
-		{
-			"gD",
-			function()
-				require("snacks").picker.lsp_declarations()
-			end,
-			desc = "Goto Declaration",
-		},
-		{
-			"gI",
-			function()
-				require("snacks").picker.lsp_implementations()
-			end,
-			desc = "Goto Implementation",
-		},
+		-- Keymaps must be registered here under vim.pack (lazy `keys` alone is not enough)
+		vim.keymap.set("n", "<C-p>", function()
+			snacks.picker.files()
+		end, { desc = "Find Files" })
+		vim.keymap.set("n", "<leader><space>", function()
+			snacks.picker.smart()
+		end, { desc = "Smart Find Files" })
+		vim.keymap.set("n", "<leader>pc", function()
+			snacks.picker.files({ cwd = vim.fn.stdpath("config") })
+		end, { desc = "Find Config File" })
+		vim.keymap.set("n", "<leader>ps", function()
+			snacks.picker.grep()
+		end, { desc = "Grep" })
+		vim.keymap.set({ "n", "x" }, "<leader>pws", function()
+			snacks.picker.grep_word()
+		end, { desc = "Grep Word/Selection" })
+		vim.keymap.set("n", "<leader>pk", function()
+			snacks.picker.keymaps({ layout = "ivy" })
+		end, { desc = "Search Keymaps" })
+		vim.keymap.set("n", "<leader>th", function()
+			snacks.picker.colorschemes({ layout = "ivy" })
+		end, { desc = "Colorschemes" })
+		vim.keymap.set("n", "<leader>vh", function()
+			snacks.picker.help()
+		end, { desc = "Help Pages" })
 
-		-- Git
-		{
-			"<leader>lg",
-			function()
-				require("snacks").lazygit()
-			end,
-			desc = "Lazygit",
-		},
-		{
-			"<leader>gl",
-			function()
-				require("snacks").lazygit.log()
-			end,
-			desc = "Lazygit Logs",
-		},
-		{
-			"<leader>gbr",
-			function()
-				require("snacks").picker.git_branches({ layout = "select" })
-			end,
-			desc = "Git Branch Picker",
-		},
+		vim.keymap.set("n", "gd", function()
+			snacks.picker.lsp_definitions()
+		end, { desc = "Goto Definition" })
+		vim.keymap.set("n", "gD", function()
+			snacks.picker.lsp_declarations()
+		end, { desc = "Goto Declaration" })
+		vim.keymap.set("n", "gI", function()
+			snacks.picker.lsp_implementations()
+		end, { desc = "Goto Implementation" })
 
-		-- Buffers / File Management
-		{
-			"<leader>rN",
-			function()
-				require("snacks").rename.rename_file()
-			end,
-			desc = "Fast Rename Current File",
-		},
-		{
-			"<leader>dB",
-			function()
-				require("snacks").bufdelete()
-			end,
-			desc = "Delete or Close Buffer (Confirm)",
-		},
+		vim.keymap.set("n", "<leader>lg", function()
+			snacks.lazygit()
+		end, { desc = "Lazygit" })
+		vim.keymap.set("n", "<leader>gl", function()
+			snacks.lazygit.log()
+		end, { desc = "Lazygit Logs" })
+		vim.keymap.set("n", "<leader>gbr", function()
+			snacks.picker.git_branches({ layout = "select" })
+		end, { desc = "Git Branches" })
 
-		{
-			"<leader>e",
-			function()
-				require("snacks").explorer()
-			end,
-			desc = "File Explorer",
-		},
-	},
+		vim.keymap.set("n", "<leader>rN", function()
+			snacks.rename.rename_file()
+		end, { desc = "Rename File" })
+		vim.keymap.set("n", "<leader>dB", function()
+			snacks.bufdelete()
+		end, { desc = "Delete Buffer" })
+		vim.keymap.set("n", "<leader>e", function()
+			snacks.explorer()
+		end, { desc = "File Explorer" })
+	end,
 }

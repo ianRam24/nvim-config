@@ -182,6 +182,36 @@ local function apply_opts(spec)
 	end
 end
 
+-- Support lazy.nvim-style `keys = { { lhs, rhs, desc=..., mode=... }, ... }`
+local function apply_keys(spec)
+	if type(spec.keys) ~= "table" then
+		return
+	end
+
+	for _, map in ipairs(spec.keys) do
+		if type(map) == "table" and map[1] then
+			local lhs = map[1]
+			local rhs = map[2]
+			local mode = map.mode or "n"
+			local opts = {
+				desc = map.desc,
+				silent = map.silent ~= false,
+				noremap = map.noremap ~= false,
+				expr = map.expr,
+				buffer = map.buffer,
+				nowait = map.nowait,
+			}
+			local ok, err = pcall(vim.keymap.set, mode, lhs, rhs, opts)
+			if not ok then
+				vim.notify(
+					"keymap failed for " .. tostring(spec[1]) .. " [" .. tostring(lhs) .. "]: " .. err,
+					vim.log.levels.WARN
+				)
+			end
+		end
+	end
+end
+
 function M.setup()
 	local urls, specs = collect_specs()
 
@@ -197,6 +227,8 @@ function M.setup()
 		elseif spec.opts ~= nil then
 			apply_opts(spec)
 		end
+
+		apply_keys(spec)
 	end
 end
 
