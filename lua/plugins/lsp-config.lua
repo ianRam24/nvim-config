@@ -36,6 +36,7 @@ return {
 					"quick_lint_js",
 					"biome",
 					"ruff",
+					"kotlin_lsp",
 				},
 			})
 		end,
@@ -149,7 +150,11 @@ return {
 				docker_compose_language_service = {},
 				quick_lint_js = {},
 				biome = {},
-				ktlint = {},
+				-- Official JetBrains Kotlin LSP via Mason (`kotlin-lsp` -> intellij-server)
+				-- Replaces deprecated fwcd/kotlin-language-server (broken on Fedora Java 25)
+				kotlin_lsp = {
+					cmd = { "intellij-server", "--stdio" },
+				},
 			}
 
 			for name, config in pairs(servers) do
