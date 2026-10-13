@@ -47,6 +47,7 @@ local module_aliases = {
 	["mfussenegger/nvim-dap"] = "dap",
 	["rcarriga/nvim-dap-ui"] = "dapui",
 	["nvimtools/none-ls.nvim"] = "null-ls",
+	["stevearc/conform.nvim"] = "conform",
 	["smjonas/inc-rename.nvim"] = "inc_rename",
 	["MeanderingProgrammer/render-markdown.nvim"] = "render-markdown",
 	["meatballs/notebook.nvim"] = "notebook",

@@ -35,7 +35,6 @@ return {
 					"docker_compose_language_service",
 					"quick_lint_js",
 					"biome",
-					"ktlint",
 					"ruff",
 				},
 			})

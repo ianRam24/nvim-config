@@ -25,7 +25,13 @@ return {
 			-- Code group
 			{ "<leader>c", group = "[C]ode" },
 			{ "<leader>ca", ":lua vim.lsp.buf.code_action()<CR>", desc = "Code Action" },
-			{ "<leader>cf", ":lua vim.lsp.buf.formatting()<CR>", desc = "Format Code" },
+			{
+				"<leader>cf",
+				function()
+					require("conform").format({ async = true, lsp_format = "fallback" })
+				end,
+				desc = "Format Code",
+			},
 
 			-- Debug group
 			{ "<leader>d", group = "[D]ebug" },
