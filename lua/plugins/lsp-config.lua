@@ -1,7 +1,7 @@
 -- ~/.config/nvim/lua/plugins/lsp-config.lua
 return {
 	{
-		"williamboman/mason.nvim",
+		"mason-org/mason.nvim",
 		config = function()
 			require("mason").setup({
 				registries = {

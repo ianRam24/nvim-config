@@ -12,7 +12,7 @@ return {
 	{
 		"iabdelkareem/csharp.nvim",
 		dependencies = {
-			"williamboman/mason.nvim", -- Requerido para instalar omnisharp automáticamente
+			"mason-org/mason.nvim",
 			"mfussenegger/nvim-dap", -- Para depuración
 			"Tastyep/structlog.nvim", -- Opcional, recomendado para debugging
 		},
