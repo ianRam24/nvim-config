@@ -9,8 +9,41 @@ return {
 			"mlaursen/vim-react-snippets",
 		},
 		config = function()
-			require("luasnip.loaders.from_vscode").load()
+			local luasnip = require("luasnip")
+			luasnip.config.setup({
+				history = true,
+				updateevents = "TextChanged,TextChangedI",
+				enable_autosnippets = false,
+			})
+
+			-- VS Code style packs (rafce, rfc, useEffectSnippet, …)
+			require("luasnip.loaders.from_vscode").lazy_load()
+
+			-- React/TS snippets (useE → useEffect, useS → useState, rfc, …)
+			require("vim-react-snippets").setup({
+				readonly_props = false,
+			})
+
+			-- Jump through snippet placeholders
+			vim.keymap.set({ "i", "s" }, "<C-l>", function()
+				if luasnip.expand_or_jumpable() then
+					luasnip.expand_or_jump()
+				end
+			end, { silent = true, desc = "Expand/jump snippet forward" })
+			vim.keymap.set({ "i", "s" }, "<C-h>", function()
+				if luasnip.jumpable(-1) then
+					luasnip.jump(-1)
+				end
+			end, { silent = true, desc = "Jump snippet backward" })
 		end,
+	},
+	{
+		"mlaursen/vim-react-snippets",
+		lazy = false,
+	},
+	{
+		"rafamadriz/friendly-snippets",
+		lazy = false,
 	},
 	{
 		"github/copilot.vim",
@@ -41,9 +74,6 @@ return {
 			local cmp = require("cmp")
 			local luasnip = require("luasnip")
 			local lspkind = require("lspkind")
-
-			local config = require("vim-react-snippets.config")
-			config.readonly_props = false
 
 			-- Distinct colors per completion kind
 			local function set_cmp_kind_colors()
@@ -121,19 +151,37 @@ return {
 					["<C-Space>"] = cmp.mapping.complete(),
 					["<C-e>"] = cmp.mapping.abort(),
 					["<CR>"] = cmp.mapping.confirm({ select = true }),
+					["<Tab>"] = cmp.mapping(function(fallback)
+						if cmp.visible() then
+							cmp.select_next_item()
+						elseif luasnip.expand_or_jumpable() then
+							luasnip.expand_or_jump()
+						else
+							fallback()
+						end
+					end, { "i", "s" }),
+					["<S-Tab>"] = cmp.mapping(function(fallback)
+						if cmp.visible() then
+							cmp.select_prev_item()
+						elseif luasnip.jumpable(-1) then
+							luasnip.jump(-1)
+						else
+							fallback()
+						end
+					end, { "i", "s" }),
 				}),
 				sources = cmp.config.sources({
-					{ name = "copilot", group_index = 2 },
-					{ name = "nvim_lsp" },
-					{ name = "luasnip" },
-					{ name = "buffer" },
-					{ name = "path" },
+					{ name = "luasnip", priority = 1000 },
+					{ name = "nvim_lsp", priority = 900 },
+					{ name = "copilot", priority = 800 },
+					{ name = "buffer", priority = 500 },
+					{ name = "path", priority = 400 },
 				}),
 				formatting = {
 					fields = { "kind", "abbr", "menu" },
 					format = function(entry, vim_item)
 						local kind = lspkind.cmp_format({
-							mode = "symbol_text",
+							mode = "symbol",
 							maxwidth = 50,
 							ellipsis_char = "...",
 							show_labelDetails = true,
@@ -167,9 +215,7 @@ return {
 							},
 						})(entry, vim_item)
 
-						-- Split " Function" into icon + label columns for clearer coloring
-						local strings = vim.split(kind.kind, "%s", { trimempty = true })
-						kind.kind = " " .. (strings[1] or "") .. " "
+						kind.kind = " " .. kind.kind .. " "
 						kind.menu = "  " .. (({
 							copilot = "Copilot",
 							nvim_lsp = "LSP",

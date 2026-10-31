@@ -17,13 +17,13 @@ return {
 				"n",
 				"<leader>rc",
 				":CompilerOpen<cr>",
-				{ noremap = true, silent = true, description = "[R]un [C]ompiler" }
+				{ noremap = true, silent = true, desc = "[R]un [C]ompiler" }
 			)
 			vim.keymap.set(
 				"n",
 				"<leader>sr",
 				":CompilerStop<cr>",
-				{ noremap = true, silent = true, description = "[S]top [R]un" }
+				{ noremap = true, silent = true, desc = "[S]top [R]un" }
 			)
 		end,
 	},

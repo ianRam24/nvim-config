@@ -1,6 +1,7 @@
 return {
 	{
-		"norcalli/nvim-colorizer.lua",
+		-- Maintained fork (norcalli uses deprecated vim.tbl_flatten and spams hit-enter)
+		"catgoose/nvim-colorizer.lua",
 		config = function()
 			require("colorizer").setup()
 		end,

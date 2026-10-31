@@ -21,6 +21,7 @@ return {
 
 		picker = {
 			enabled = true,
+			exclude = { ".git", "node_modules" },
 			matchers = {
 				frecency = true,
 				cwd_bonus = false,
@@ -184,6 +185,7 @@ return {
 			snacks.picker.help()
 		end, { desc = "Help Pages" })
 
+		-- Snacks LSP pickers (preview + fuzzy). auto_confirm jumps when there's only 1 result.
 		vim.keymap.set("n", "gd", function()
 			snacks.picker.lsp_definitions()
 		end, { desc = "Goto Definition" })
@@ -191,8 +193,17 @@ return {
 			snacks.picker.lsp_declarations()
 		end, { desc = "Goto Declaration" })
 		vim.keymap.set("n", "gI", function()
+			snacks.picker.lsp_definitions()
+		end, { desc = "Goto Definition" })
+		vim.keymap.set("n", "gi", function()
 			snacks.picker.lsp_implementations()
 		end, { desc = "Goto Implementation" })
+		vim.keymap.set("n", "gr", function()
+			snacks.picker.lsp_references()
+		end, { desc = "References" })
+		vim.keymap.set("n", "K", function()
+			vim.lsp.buf.hover({ border = "rounded", max_width = 80, max_height = 20 })
+		end, { desc = "Hover documentation" })
 
 		vim.keymap.set("n", "<leader>lg", function()
 			snacks.lazygit()

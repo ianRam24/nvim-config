@@ -71,37 +71,34 @@ return {
 			vim.api.nvim_create_autocmd("LspAttach", {
 				callback = function(ev)
 					local opts = { buffer = ev.buf, silent = true }
-					vim.keymap.set(
-						"n",
-						"gd",
-						vim.lsp.buf.definition,
-						vim.tbl_extend("force", opts, { desc = "Go to definition" })
-					)
-					vim.keymap.set(
-						"n",
-						"gD",
-						vim.lsp.buf.declaration,
-						vim.tbl_extend("force", opts, { desc = "Go to declaration" })
-					)
-					vim.keymap.set(
-						"n",
-						"gi",
-						vim.lsp.buf.implementation,
-						vim.tbl_extend("force", opts, { desc = "Go to implementation" })
-					)
-					vim.keymap.set(
-						"n",
-						"gI",
-						vim.lsp.buf.implementation,
-						vim.tbl_extend("force", opts, { desc = "Go to implementation" })
-					)
-					vim.keymap.set(
-						"n",
-						"gr",
-						vim.lsp.buf.references,
-						vim.tbl_extend("force", opts, { desc = "References" })
-					)
-					vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover" }))
+					local snacks = require("snacks")
+
+					vim.keymap.set("n", "gd", function()
+						snacks.picker.lsp_definitions()
+					end, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
+					vim.keymap.set("n", "gD", function()
+						snacks.picker.lsp_declarations()
+					end, vim.tbl_extend("force", opts, { desc = "Go to declaration" }))
+					-- gI = definition (muscle memory); gi = implementation
+					vim.keymap.set("n", "gI", function()
+						snacks.picker.lsp_definitions()
+					end, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
+					vim.keymap.set("n", "gi", function()
+						snacks.picker.lsp_implementations()
+					end, vim.tbl_extend("force", opts, { desc = "Go to implementation" }))
+					vim.keymap.set("n", "gr", function()
+						snacks.picker.lsp_references()
+					end, vim.tbl_extend("force", opts, { desc = "References" }))
+					-- Docs popup (Noice styles it with border for every LSP)
+					vim.keymap.set("n", "K", function()
+						vim.lsp.buf.hover({ border = "rounded", max_width = 80, max_height = 20 })
+					end, vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
+
+					-- Signature help (Noice also auto-opens while typing args)
+					vim.keymap.set({ "n", "i" }, "<C-k>", function()
+						vim.lsp.buf.signature_help({ border = "rounded", max_width = 80 })
+					end, vim.tbl_extend("force", opts, { desc = "Signature help" }))
+
 					vim.keymap.set(
 						"n",
 						"<leader>ca",
@@ -124,7 +121,6 @@ return {
 			})
 
 			local servers = {
-				ts_ls = {},
 				html = {},
 				cssls = {},
 				lua_ls = {
@@ -132,6 +128,25 @@ return {
 						Lua = {
 							diagnostics = { globals = { "vim" } },
 							workspace = { checkThirdParty = false },
+							hint = { enable = true },
+							completion = { callSnippet = "Replace" },
+						},
+					},
+				},
+				-- Richer hover/docs from TypeScript
+				ts_ls = {
+					settings = {
+						typescript = {
+							inlayHints = {
+								includeInlayParameterNameHints = "all",
+								includeInlayFunctionParameterTypeHints = true,
+							},
+						},
+						javascript = {
+							inlayHints = {
+								includeInlayParameterNameHints = "all",
+								includeInlayFunctionParameterTypeHints = true,
+							},
 						},
 					},
 				},
